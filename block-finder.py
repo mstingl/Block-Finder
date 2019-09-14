@@ -6,7 +6,7 @@ Prints a map of the entire world.
 import os
 import json
 import argparse
-from multiprocessing import Process, Queue, set_start_method
+from multiprocessing import Process, Queue, set_start_method, Pool
 from quarry.types.nbt import RegionFile
 from quarry.types.chunk import BlockArray
 
@@ -20,7 +20,7 @@ def range_xz(start, end):
             yield x, z
 
 
-def parse_region_file(queue, file, search_blocks):
+def parse_region_file(file, search_blocks):
     print("Start processing", file)
     search_results = []
     with RegionFile(file) as region:
@@ -52,26 +52,19 @@ def parse_region_file(queue, file, search_blocks):
                 pass
 
     print("Completed processing", file)
-    queue.put(search_results)
+    return search_results
 
 
-def main(world_folder, search_blocks):
+def main(world_folder, search_blocks, pool_processes):
     region_folder = os.path.join(world_folder, "region")
     region_files = os.listdir(region_folder)
 
     search_results = []
 
-    queue = Queue()
-    processes = []
-
-    for file in region_files:
-        p = Process(target=parse_region_file, args=(queue, os.path.join(region_folder, file), search_blocks,))
-        p.start()
-        processes.append(p)
-
-    for process in processes:
-        process.join()
-        search_results += queue.get()
+    with Pool(pool_processes) as p:
+        p_results = [p.apply_async(parse_region_file, (os.path.join(region_folder, file), search_blocks,)) for file in region_files]
+        for p in p_results:
+            search_results += p.get()
 
     return search_results
 
@@ -80,9 +73,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--map', dest='map')
     parser.add_argument('-b', nargs='+', help='block id', dest='blocks')
+    parser.add_argument('-p', dest='processes', default=4, type=int)
 
     args = parser.parse_args()
     folder = os.path.normpath(args.map)
 
-    result = main(folder, [int(block_id) for block_id in args.blocks])
+    result = main(folder, [int(block_id) for block_id in args.blocks], args.processes)
     print("Result:", json.dumps(result))
