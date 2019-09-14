@@ -6,7 +6,7 @@ Prints a map of the entire world.
 import os
 import json
 import argparse
-from multiprocessing import Process, Queue, set_start_method, Pool
+from multiprocessing import set_start_method, Pool
 from quarry.types.nbt import RegionFile
 from quarry.types.chunk import BlockArray
 
