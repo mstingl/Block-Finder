@@ -14,7 +14,8 @@
                 "--map", "C:\\Users\\Manuel\\AppData\\Roaming\\.minecraft\\saves\\Flat World",
                 "-b 54",
             ],
-            "justMyCode": false
+            "justMyCode": false,
+            "subProcess": true,
         }
     ]
 }
