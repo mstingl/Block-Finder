@@ -74,9 +74,14 @@ if __name__ == '__main__':
     parser.add_argument('--map', dest='map')
     parser.add_argument('-b', nargs='+', help='block id', dest='blocks')
     parser.add_argument('-p', dest='processes', default=4, type=int)
+    parser.add_argument('--result-file', dest='result_file', default='result.json')
 
     args = parser.parse_args()
     folder = os.path.normpath(args.map)
 
     result = main(folder, [int(block_id) for block_id in args.blocks], args.processes)
-    print("Result:", json.dumps(result))
+
+    with open(os.path.normpath(args.result_file), "w") as f:
+        f.write(json.dumps(result))
+
+    print("Completed! See", os.path.normpath(args.result_file))

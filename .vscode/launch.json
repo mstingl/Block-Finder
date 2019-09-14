@@ -11,7 +11,8 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "--map", "C:\\Users\\Manuel\\AppData\\Roaming\\.minecraft\\saves\\Flat World",
+                "--map", "C:\\Users\\Manuel\\AppData\\Roaming\\.minecraft\\saves\\Dayz",
+                "-p 14",
                 "-b 54",
             ],
             "justMyCode": false,
