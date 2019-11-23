@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 """
-Prints a map of the entire world.
+Search coordinates of blocks in the entire map
 """
 
 import os
+import sys
 import json
 import argparse
 from multiprocessing import set_start_method, Pool
@@ -11,7 +12,7 @@ from quarry.types.nbt import RegionFile
 from quarry.types.chunk import BlockArray
 
 
-registry = {} #LookupRegistry.from_json(os.path.realpath("./reports"))
+registry = {}
 
 
 def range_xz(start, end):
@@ -71,12 +72,17 @@ def main(world_folder, search_blocks, pool_processes):
 if __name__ == '__main__':
     set_start_method('spawn')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', dest='map')
-    parser.add_argument('-b', nargs='+', help='block id', dest='blocks')
-    parser.add_argument('-p', dest='processes', default=4, type=int)
-    parser.add_argument('--result-file', dest='result_file', default='result.json')
+    parser.add_argument('--map', dest='map', help='Path of the world folder')
+    parser.add_argument('-b', nargs='+', dest='blocks', help='IDs of Blocks to search for')
+    parser.add_argument('-p', dest='processes', default=4, type=int, help='How many processes to use for parallel searching')
+    parser.add_argument('--result-file', dest='result_file', default='result.json', help='Path of the result file')
 
     args = parser.parse_args()
+
+    if not args.map or not args.blocks:
+        parser.print_help()
+        sys.exit(1)
+
     folder = os.path.normpath(args.map)
 
     result = main(folder, [int(block_id) for block_id in args.blocks], args.processes)
